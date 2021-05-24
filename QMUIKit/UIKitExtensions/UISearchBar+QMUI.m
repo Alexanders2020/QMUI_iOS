@@ -71,26 +71,26 @@ QMUISynthesizeCGFloatProperty(qmuisb_centerPlaceholderCachedWidth2, setQmuisb_ce
             });
         }
         
-        OverrideImplementation(NSClassFromString(@"UINavigationButton"), @selector(setEnabled:), ^id(__unsafe_unretained Class originClass, SEL originCMD, IMP (^originalIMPProvider)(void)) {
-            return ^(UIButton *selfObject, BOOL firstArgv) {
-                
-                UISearchBar *searchBar = nil;
-                if (@available(iOS 13.0, *)) {
-                    searchBar = (UISearchBar *)selfObject.superview.superview.superview;
-                } else {
-                    searchBar = (UISearchBar *)selfObject.superview.superview;
-                }
-                NSAssert(!searchBar || [searchBar isKindOfClass:UISearchBar.class], @"Can not find UISearchBar from cancelButton");
-                if (searchBar.qmui_alwaysEnableCancelButton && !searchBar.qmui_searchController) {
-                    firstArgv = YES;
-                }
-                
-                // call super
-                void (*originSelectorIMP)(id, SEL, BOOL);
-                originSelectorIMP = (void (*)(id, SEL, BOOL))originalIMPProvider();
-                originSelectorIMP(selfObject, originCMD, firstArgv);
-            };
-        });
+      OverrideImplementation(NSClassFromString(@"UINavigationButton"), @selector(setEnabled:), ^id(__unsafe_unretained Class originClass, SEL originCMD, IMP (^originalIMPProvider)(void)) {
+    return ^(UIButton *selfObject, BOOL firstArgv) {
+        
+        UISearchBar *searchBar = nil;
+        if (@available(iOS 13.0, *)) {
+            searchBar = (UISearchBar *)selfObject.superview.superview.superview;
+        } else {
+            searchBar = (UISearchBar *)selfObject.superview.superview;
+        }
+        
+        if ([searchBar isKindOfClass:UISearchBar.class] && searchBar.qmui_alwaysEnableCancelButton && !searchBar.qmui_searchController) {
+            firstArgv = YES;
+        }
+        
+        // call super
+        void (*originSelectorIMP)(id, SEL, BOOL);
+        originSelectorIMP = (void (*)(id, SEL, BOOL))originalIMPProvider();
+        originSelectorIMP(selfObject, originCMD, firstArgv);
+    };
+});
         
         ExtendImplementationOfVoidMethodWithSingleArgument([UISearchBar class], @selector(setPlaceholder:), NSString *, (^(UISearchBar *selfObject, NSString *placeholder) {
             if (selfObject.qmui_placeholderColor || selfObject.qmui_font) {
